@@ -1,0 +1,22 @@
+@import '../../assets/styles/variables.css';
+
+.game-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	padding: 8px 0 24px 0;
+	justify-items: start;
+}
+
+
+@media (min-width: 1200px) {
+  .game-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 900px) and (max-width:1199px) {
+	.game-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 600px) and (max-width:899px) {
+	.game-grid { grid-template-columns: repeat(2, 1fr); }
+}

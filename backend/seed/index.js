@@ -11,7 +11,7 @@ async function seed() {
     database: DB_NAME,
   });
 
-  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction"];
+  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "Stardew Valley", "Among Us", "Minecraft"];
   const createSql = `
     CREATE TABLE IF NOT EXISTS games (
       id INT PRIMARY KEY AUTO_INCREMENT,
