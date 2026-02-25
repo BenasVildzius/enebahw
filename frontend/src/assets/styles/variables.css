@@ -1,0 +1,11 @@
+:root {
+  --purple-900: #2d006b;
+  --purple-700: #4b00b5;
+  --purple-500: #7a00ff;
+  --yellow-400: #ffdd33;
+  --card-bg: #1a1a1a;
+  --text-light: #ffffff;
+  --text-muted: #bbbbbb;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
