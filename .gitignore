@@ -2,3 +2,8 @@ node_modules/
 frontend/node_modules/
 backend/node_modules/
 .env
+
+# Ignore per-service env files
+/backend/.env
+/frontend/.env.local
+/frontend/.env.*.local

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE || 'http://localhost:4000';
 
 export default function App() {
   const [q, setQ] = useState('');
@@ -40,16 +40,33 @@ export default function App() {
 
       {loading ? <p>Loading...</p> : (
         <ul>
-          {games.map(g => (
-            <li key={g.id}>
-              <img src={g.cover_url} alt={g.name} width="80" />
-              <div>
-                <h3>{g.name}</h3>
-                <p>{g.platform} • {g.release_year}</p>
-                <p>{g.description}</p>
-              </div>
-            </li>
-          ))}
+          {games.map(g => {
+            const poster = g.poster || g.cover_url || '';
+            const platform = g.platform || g.platforms || '';
+            const region = g.activation_region || '';
+            const price = typeof g.price === 'number' ? g.price.toFixed(2) : g.price || '0.00';
+            const currency = g.base_currency || g.currency || '';
+            const cashback = g.cashback_sum != null ? g.cashback_sum : g.cashback || 0;
+            const likes = g.likes || 0;
+            const description = g.description || g.description_raw || '';
+
+            return (
+              <li key={g.id}>
+                <img src={poster} alt={g.name} width="80" />
+                <div>
+                  <h3>{g.name}</h3>
+                  <p>{platform} {region ? `• ${region}` : ''}</p>
+                  <p>{description}</p>
+                  <p>
+                    <strong>Price:</strong> {price} {currency} {
+                      cashback ? <span>• Cashback: {parseFloat(cashback).toFixed(2)} {currency}</span> : null
+                    }
+                  </p>
+                  <p>Likes: {likes}</p>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>

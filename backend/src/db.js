@@ -1,13 +1,12 @@
 import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
-dotenv.config();
+import { DB_HOST, DB_USER, DB_PASS, DB_NAME } from './config.js';
 
 export const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'localdev',
-  password: process.env.DB_PASS || 'Localdev123!',
-  database: process.env.DB_NAME || 'enebahw_db',
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASS,
+  database: DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 });
