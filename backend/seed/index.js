@@ -1,14 +1,25 @@
 import mysql from "mysql2/promise";
-import { DB_HOST, DB_USER, DB_PASS, DB_NAME } from "../src/config.js";
+import { DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT } from "../src/config.js";
 import { fetchPrice } from "./fetchPrice.js";
 import { fetchDetails } from "./fetchDetails.js";
 
 async function seed() {
+  const useSsl = process.env.DB_SSL === 'true' || false;
+  let sslOption;
+  if (useSsl) {
+    const ca = process.env.DB_CA || '';
+    sslOption = { ca };
+  } else {
+    sslOption = undefined;
+  }
+
   const pool = mysql.createPool({
     host: DB_HOST,
+    port: DB_PORT ? parseInt(DB_PORT, 10) : undefined,
     user: DB_USER,
     password: DB_PASS,
     database: DB_NAME,
+    ssl: sslOption,
   });
 
   const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "God of War", "Horizon Zero Dawn", "Left 4 Dead 2","Assassin's Creed Valhalla", "Call of Duty Modern Warfare"];
@@ -26,7 +37,9 @@ async function seed() {
       likes INT DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       UNIQUE KEY uniq_name (name),
-      FULLTEXT KEY ft_name_platform (name, platform)
+      -- TiDB Cloud serverless clusters do not support multi-column FULLTEXT indexes.
+      -- Use single-column FULLTEXT on name instead for compatibility.
+      FULLTEXT KEY ft_name (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `;
 

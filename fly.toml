@@ -1,0 +1,9 @@
+[app]
+  # replace with your Fly app name after `fly launch` or keep as-is
+  name = "your-app-name"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
