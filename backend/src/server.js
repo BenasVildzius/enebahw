@@ -74,7 +74,43 @@ app.get('/list', async (req, res) => {
       try { if (r.stores && typeof r.stores === 'string') r.stores = JSON.parse(r.stores); } catch (e) {}
       return r;
     });
-    return res.json(parsed);
+    if (parsed.length > 0) return res.json(parsed);
+
+    // FINAL fallback: simple fuzzy token-overlap ranking (works without DB extensions)
+    try {
+      const [allRows] = await pool.query(`SELECT id, name, poster, stores, platform, activation_region, price, base_currency, cashback_sum, likes FROM games`);
+      const normalize = (s) => (s || '').toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim();
+      const tokensOf = (s) => normalize(s).split(/\s+/).filter(Boolean);
+      const termTokens = tokensOf(term);
+
+      const scored = allRows.map(r => {
+        const nameStr = `${r.name || ''} ${r.platform || ''}`;
+        const nameTokens = tokensOf(nameStr);
+        let intersection = 0;
+        for (const nt of nameTokens) {
+          for (const tt of termTokens) {
+            if (nt === tt || nt.startsWith(tt) || tt.startsWith(nt) || nt.includes(tt) || tt.includes(nt)) {
+              intersection += 1;
+              break;
+            }
+          }
+        }
+        const unionSize = new Set([...nameTokens, ...termTokens]).size || 1;
+        const score = intersection / unionSize;
+        return { row: r, score };
+      }).filter(x => x.score > 0);
+
+      scored.sort((a, b) => b.score - a.score);
+      const top = scored.slice(0, parseInt(limit || 50)).map(s => {
+        try { if (s.row.stores && typeof s.row.stores === 'string') s.row.stores = JSON.parse(s.row.stores); } catch (e) {}
+        return s.row;
+      });
+      return res.json(top);
+    } catch (e) {
+      // If fuzzy fallback fails, just return empty array
+      console.error('Fuzzy search fallback failed', e);
+      return res.json([]);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

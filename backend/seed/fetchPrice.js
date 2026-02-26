@@ -29,6 +29,20 @@ function isWhitelistedStore(name) {
   return WHITELIST_KEYS.some(k => s.includes(k));
 }
 
+function mapStoreToDrm(name) {
+  if (!name) return { key: null, label: null };
+  const s = String(name).toLowerCase();
+  if (s.includes('steam')) return { key: 'steam', label: 'Steam' };
+  if (s.includes('gog')) return { key: 'gog', label: 'GOG' };
+  if (s.includes('epic')) return { key: 'epic', label: 'Epic Games' };
+  if (s.includes('ubisoft') || s.includes('ubi')) return { key: 'ubisoft', label: 'Ubisoft' };
+  if (s.includes('playstation') || s.includes('psn')) return { key: 'psn', label: 'PlayStation' };
+  if (s.includes('xbox')) return { key: 'xbox', label: 'Xbox' };
+  if (s.includes('microsoft') || s.includes('ms')) return { key: 'microsoft', label: 'Microsoft' };
+  if (s.includes('ea')) return { key: 'ea', label: 'EA' };
+  return { key: null, label: null };
+}
+
 async function fetchPrice(gameName) {
   try {
     const searchUrl = `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(gameName)}`;
@@ -53,9 +67,13 @@ async function fetchPrice(gameName) {
           const deals = details.deals || [];
           const stores = deals.map(deal => {
             const sid = String(deal.storeID);
+            const storeName = (storesMap[sid] && storesMap[sid].name) || deal.storeName || null;
+            const drm = mapStoreToDrm(storeName);
             return {
               storeID: sid,
-              storeName: (storesMap[sid] && storesMap[sid].name) || deal.storeName || null,
+              storeName: storeName,
+              drmKey: drm.key,
+              drmLabel: drm.label,
               price: deal.price != null ? parseFloat(deal.price) : null,
               retailPrice: deal.retailPrice != null ? parseFloat(deal.retailPrice) : null,
               savings: deal.savings != null ? parseFloat(deal.savings) : null,
@@ -64,6 +82,7 @@ async function fetchPrice(gameName) {
             };
           });
 
+          // keep only whitelisted stores with a price, but still include drm metadata
           enriched = stores.filter(s => isWhitelistedStore(s.storeName) && s.price != null);
         }
       } catch (e) {
@@ -72,10 +91,12 @@ async function fetchPrice(gameName) {
     }
 
     const cheapest = (enriched && enriched.length > 0)
-      ? enriched.reduce((acc, cur) => (cur.price != null && (acc == null || cur.price < acc) ? cur.price : acc), null)
-      : (first.cheapest ? parseFloat(first.cheapest) : null);
+      ? enriched.reduce((acc, cur) => (cur.price != null && (acc == null || cur.price < acc.price) ? cur : acc), null)
+      : null;
 
-    return { price: cheapest != null ? cheapest : 0, currency: 'USD', stores: enriched };
+    const priceValue = cheapest ? cheapest.price : (first.cheapest ? parseFloat(first.cheapest) : null);
+
+    return { price: priceValue != null ? priceValue : 0, currency: 'USD', stores: enriched, cheapestStore: cheapest || null };
   } catch (e) {
     console.warn('fetchPrice error for', gameName, e && e.message ? e.message : e);
     return { price: 0, currency: 'USD', stores: [] };

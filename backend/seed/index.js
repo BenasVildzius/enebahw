@@ -11,7 +11,7 @@ async function seed() {
     database: DB_NAME,
   });
 
-  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "God of War", "Horizon Zero Dawn", "Mortal Combat 11","Assassin's Creed Valhalla", "Call of Duty Modern Warfare"];
+  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "God of War", "Horizon Zero Dawn", "Left 4 Dead 2","Assassin's Creed Valhalla", "Call of Duty Modern Warfare"];
   const createSql = `
     CREATE TABLE IF NOT EXISTS games (
       id INT PRIMARY KEY AUTO_INCREMENT,
@@ -59,7 +59,8 @@ async function seed() {
       }
 
       const poster = details?.poster || null;
-      const platform = details?.platforms || 'Unknown';
+      const platformFromPrice = price && price.cheapestStore && price.cheapestStore.drmLabel ? price.cheapestStore.drmLabel : null;
+      const platform = platformFromPrice || details?.platforms || 'Unknown';
       const finalPrice = typeof price.price === 'number' ? price.price : 0;
       const finalCurrency = price.currency || 'EUR';
       const storesJson = (Array.isArray(price.stores) && price.stores.length > 0) ? JSON.stringify(price.stores) : null;

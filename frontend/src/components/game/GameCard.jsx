@@ -82,10 +82,21 @@ export default function GameCard({ game }) {
 
   let chosen = null;
   if (candidates.length > 0) {
-    chosen = candidates[Math.floor(Math.random() * candidates.length)];
+    const priced = candidates.map(c => {
+      const raw = c.raw || {};
+      const priceRaw = raw?.price || raw?.cheapest || raw?.salePrice || raw?.dealPrice || raw?.price_new || null;
+      const numeric = priceRaw != null ? parseFloat(priceRaw) : Number.POSITIVE_INFINITY;
+      return { ...c, numericPrice: numeric };
+    }).filter(c => Number.isFinite(c.numericPrice));
+
+    if (priced.length > 0) {
+      chosen = priced.reduce((a, b) => (b.numericPrice < a.numericPrice ? b : a), priced[0]);
+    } else {
+      chosen = candidates[0];
+    }
   }
 
-  const storeName = chosen?.entry?.label || '';
+  const storeName = chosen?.raw?.drmLabel || chosen?.entry?.label || '';
   const storeIconPath = chosen
     ? `/src/assets/icons/${chosen.entry.file}`
     : `/src/assets/icons/store.svg`;
@@ -98,6 +109,7 @@ export default function GameCard({ game }) {
     chosen?.raw?.cheapest ||
     chosen?.raw?.salePrice ||
     chosen?.raw?.dealPrice ||
+    chosen?.numericPrice ||
     null;
 
   const storePrice = storePriceRaw != null ? parseFloat(storePriceRaw) : null;

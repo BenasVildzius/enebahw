@@ -25,6 +25,15 @@ export default function HomePage() {
 
 	useEffect(() => { fetchList(''); }, []);
 
+	// Live search: debounce input and fetch as user types
+	useEffect(() => {
+		const t = setTimeout(() => {
+			// only run fetch when query has something or when cleared (empty -> fetch all)
+			fetchList(q);
+		}, 300);
+		return () => clearTimeout(t);
+	}, [q]);
+
 	const onSearch = () => fetchList(q);
 
 	return (
