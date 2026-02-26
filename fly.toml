@@ -1,6 +1,6 @@
 [app]
   # replace with your Fly app name after `fly launch` or keep as-is
-  name = "your-app-name"
+  name = "enebahw"
 
 [build]
   dockerfile = "Dockerfile"
