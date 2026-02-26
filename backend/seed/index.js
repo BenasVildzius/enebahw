@@ -11,12 +11,13 @@ async function seed() {
     database: DB_NAME,
   });
 
-  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "Stardew Valley", "Among Us", "Minecraft"];
+  const games = ["NBA 2K25", "Red Dead Redemption 2", "Split Fiction", "Cyberpunk 2077", "The Witcher 3: Wild Hunt", "Elden Ring", "Hades", "God of War", "Horizon Zero Dawn", "Mortal Combat 11","Assassin's Creed Valhalla", "Call of Duty Modern Warfare"];
   const createSql = `
     CREATE TABLE IF NOT EXISTS games (
       id INT PRIMARY KEY AUTO_INCREMENT,
       name VARCHAR(255) NOT NULL,
       poster VARCHAR(1024),
+      stores JSON DEFAULT NULL,
       platform VARCHAR(255),
       activation_region VARCHAR(255),
       price DECIMAL(10,2) NOT NULL DEFAULT 0,
@@ -61,13 +62,14 @@ async function seed() {
       const platform = details?.platforms || 'Unknown';
       const finalPrice = typeof price.price === 'number' ? price.price : 0;
       const finalCurrency = price.currency || 'EUR';
+      const storesJson = (Array.isArray(price.stores) && price.stores.length > 0) ? JSON.stringify(price.stores) : null;
 
       try {
         await pool.query(
-          `INSERT INTO games (name, poster, platform, activation_region, price, base_currency, cashback_sum, likes)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE poster=VALUES(poster), price=VALUES(price), base_currency=VALUES(base_currency)`,
-          [name, poster, platform, 'Global', finalPrice, finalCurrency, 0, 0]
+          `INSERT INTO games (name, poster, stores, platform, activation_region, price, base_currency, cashback_sum, likes)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+           ON DUPLICATE KEY UPDATE poster=VALUES(poster), stores=VALUES(stores), price=VALUES(price), base_currency=VALUES(base_currency)`,
+          [name, poster, storesJson, platform, 'Global', finalPrice, finalCurrency, 0, 0]
         );
         console.log(`Seeded ${name} — ${finalPrice} ${finalCurrency}`);
       } catch (e) {

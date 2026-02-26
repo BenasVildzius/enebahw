@@ -1,20 +1,12 @@
-@import '../../assets/styles/variables.css';
-
-/* Card container */
 .game-card {
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
+  position: relative;
+  width: 95%;
+  padding-bottom: 160%;
+  border: 1px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
   overflow: hidden;
   cursor: pointer;
-  color: var(--text-light);
   transition: transform .15s ease, box-shadow .15s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  border: 1px solid #ffffff;
-  position: relative;
-  width: 100%;
-  padding-bottom: 160%; /* portrait rectangle: taller than wide */
-  box-sizing: border-box;
 }
 
 .game-card:hover {
@@ -22,87 +14,113 @@
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 
-/* Poster wrapper */
-
+/* Poster */
 .poster-wrapper {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  background: #0b0b0b;
-  display:flex; align-items:center; justify-content:center;
   z-index: 1;
 }
 
-/* Poster image */
 .poster-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform .25s ease;
-  background-position:center; background-size:cover;
-  display:block;
 }
-
-.poster-placeholder { width:100%; height:100%; background:#0b0b0b }
 
 .game-card:hover .poster-img {
   transform: scale(1.03);
 }
 
-/* Cashback badge */
-.cashback-small { color: #00c6a7; font-weight:700; font-size:0.85rem; margin-top:4px }
+/* Store bar - positioned relative to details-block */
+.details-block .store-bar {
+  position: absolute;
+  top: -42px; /* Sit just above the details block */
+  left: 0;
+  right: 0;
+  height: 42px;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px;
+  z-index: 5;
+}
 
-/* Card info section */
-.card-info {
+.store-bar img {
+  width: 26px;
+  height: 26px;
+}
+
+.store-bar img.invert-icon {
+  filter: brightness(0) invert(1);
+}
+
+.store-name {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Unified details block */
+.details-block {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 72px;
-  padding: 12px;
+  bottom: 0;
+  background: var(--purple-900);
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: rgba(75,0,181,0.9);
-  z-index: 3;
+  gap: 10px;
+  z-index: 4;
 }
 
 .game-title {
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
-  color: var(--text-light);
 }
 
-.region-sub { color: #7fbfff; font-size:0.85rem; margin-top:6px }
-
-.tags { display:flex; gap:8px }
-.tag { background: rgba(255,255,255,0.02); padding:4px 8px; border-radius:6px; color:var(--text-muted); font-size:0.75rem }
-
-/* Footer bar with price and likes */
-
-.card-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 72px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 14px;
-  background: var(--purple-900);
-  z-index: 4;
+.region-sub {
+  font-size: 0.85rem;
+  color: #7fbfff;
 }
-.card-footer .price { font-weight:800; color: var(--text-light); }
-.card-footer .likes { color: var(--text-muted); font-size:0.9rem; display:flex; gap:8px; align-items:center }
-.price-wrap { display:flex; flex-direction:column }
 
-/* Likes small */
+/* Price + likes row */
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.price {
+  font-weight: 800;
+}
+
+.cashback-small {
+  font-size: 0.85rem;
+  color: #00c6a7;
+  font-weight: 700;
+}
+
 .likes {
-  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   color: var(--text-muted);
 }
 
-/* ensure icons inside cards can be inverted to white */
-.icon-white { filter: brightness(0) invert(1); }
-.heart-icon { width:16px; height:16px }
+.icon-white {
+  filter: brightness(0) invert(1);
+}
+
+.heart-icon {
+  width: 16px;
+  height: 16px;
+}

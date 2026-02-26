@@ -20,10 +20,15 @@ app.get('/list', async (req, res) => {
   try {
     if (!search) {
       const [rows] = await pool.query(
-        'SELECT id, name, poster, platform, activation_region, price, base_currency, cashback_sum, likes FROM games ORDER BY name LIMIT ?',
+        'SELECT id, name, poster, stores, platform, activation_region, price, base_currency, cashback_sum, likes FROM games ORDER BY name LIMIT ?',
         [parseInt(limit || 100)]
       );
-      return res.json(rows);
+      // ensure JSON columns are parsed
+      const parsed = rows.map(r => {
+        try { if (r.stores && typeof r.stores === 'string') r.stores = JSON.parse(r.stores); } catch (e) { /* keep as-is */ }
+        return r;
+      });
+      return res.json(parsed);
     }
 
     // If search provided, use FULLTEXT first, then fallback to LIKE
@@ -34,12 +39,12 @@ app.get('/list', async (req, res) => {
 
     // Fulltext search (on `name` only). If your DB doesn't have a fulltext index this
     // may return empty or be less effective — the fallback LIKE will still run.
-    const ftSql = `SELECT id, name, poster, platform, activation_region, price, base_currency, cashback_sum, likes,
-             MATCH(name, platform) AGAINST (? IN BOOLEAN MODE) AS score
-             FROM games
-             WHERE MATCH(name, platform) AGAINST (? IN BOOLEAN MODE)
-             ORDER BY score DESC
-             LIMIT ?`;
+    const ftSql = `SELECT id, name, poster, stores, platform, activation_region, price, base_currency, cashback_sum, likes,
+         MATCH(name, platform) AGAINST (? IN BOOLEAN MODE) AS score
+         FROM games
+         WHERE MATCH(name, platform) AGAINST (? IN BOOLEAN MODE)
+         ORDER BY score DESC
+         LIMIT ?`;
     let ftRows = [];
     try {
       const [_ftRows] = await pool.query(ftSql, [booleanQuery, booleanQuery, parseInt(limit || 50)]);
@@ -50,18 +55,26 @@ app.get('/list', async (req, res) => {
     }
 
     if (ftRows.length > 0) {
-      return res.json(ftRows);
+      const parsed = ftRows.map(r => {
+        try { if (r.stores && typeof r.stores === 'string') r.stores = JSON.parse(r.stores); } catch (e) {}
+        return r;
+      });
+      return res.json(parsed);
     }
 
     // Fallback: LIKE fuzzy search across `name` and `platform`
     const likeTerm = `%${term}%`;
-    const likeSql = `SELECT id, name, poster, platform, activation_region, price, base_currency, cashback_sum, likes
-             FROM games
-             WHERE name LIKE ? OR platform LIKE ?
-             ORDER BY name
-             LIMIT ?`;
+    const likeSql = `SELECT id, name, poster, stores, platform, activation_region, price, base_currency, cashback_sum, likes
+         FROM games
+         WHERE name LIKE ? OR platform LIKE ?
+         ORDER BY name
+         LIMIT ?`;
     const [likeRows] = await pool.query(likeSql, [likeTerm, likeTerm, parseInt(limit || 50)]);
-    return res.json(likeRows);
+    const parsed = likeRows.map(r => {
+      try { if (r.stores && typeof r.stores === 'string') r.stores = JSON.parse(r.stores); } catch (e) {}
+      return r;
+    });
+    return res.json(parsed);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
