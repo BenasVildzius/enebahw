@@ -15,7 +15,14 @@ export default function HomePage() {
 		try {
 			const url = search ? `${API_BASE}/list?search=${encodeURIComponent(search)}` : `${API_BASE}/list`;
 			const res = await axios.get(url);
-			setGames(res.data || []);
+			// Coerce response to an array — some edge cases (HTML error pages, objects)
+			// can make `res.data` not an array and crash the UI. Log unexpected payloads.
+			if (Array.isArray(res.data)) {
+				setGames(res.data);
+			} else {
+				console.error('Unexpected /list response, expected array:', res.data);
+				setGames([]);
+			}
 		} catch (err) {
 			console.error(err);
 		} finally {
