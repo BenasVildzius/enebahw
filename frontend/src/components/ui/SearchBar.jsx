@@ -1,11 +1,12 @@
 import React from 'react';
 import './SearchBar.css';
+import searchIcon from '../../assets/icons/search.svg';
 
 export default function SearchBar({ value = '', onChange = () => {}, onSearch = () => {} }) {
 	return (
 		<form className="searchbar" onSubmit={e => { e.preventDefault(); onSearch(e); }}>
 			<span className="search-icon" aria-hidden>
-				<img src="/src/assets/icons/search.svg" alt="search" className="icon icon-white search-icon-img" />
+				<img src={searchIcon} alt="search" className="icon icon-white search-icon-img" />
 			</span>
 			<input
 				className="search-input"

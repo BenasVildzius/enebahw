@@ -1,6 +1,15 @@
 import React from 'react';
 import './GameCard.css';
 import heartIcon from '../../assets/icons/heart.svg';
+import steamIcon from '../../assets/icons/steam.svg';
+import gogIcon from '../../assets/icons/gog.svg';
+import epicIcon from '../../assets/icons/epic.svg';
+import ubiIcon from '../../assets/icons/ubi.svg';
+import psnIcon from '../../assets/icons/psn.svg';
+import xboxIcon from '../../assets/icons/xbox.svg';
+import msIcon from '../../assets/icons/ms.svg';
+import eaIcon from '../../assets/icons/ea.svg';
+import globeIcon from '../../assets/icons/globe.svg';
 
 export default function GameCard({ game }) {
   const poster = game.poster || game.cover_url || '';
@@ -32,6 +41,17 @@ export default function GameCard({ game }) {
     { keys: ['xbox'], file: 'xbox.svg', label: 'Xbox', invert: true },
     { keys: ['microsoft', 'ms'], file: 'ms.svg', label: 'Microsoft', invert: true },
   ];
+
+  const ICON_MAP = {
+    'steam.svg': steamIcon,
+    'gog.svg': gogIcon,
+    'epic.svg': epicIcon,
+    'ubi.svg': ubiIcon,
+    'psn.svg': psnIcon,
+    'xbox.svg': xboxIcon,
+    'ms.svg': msIcon,
+    'ea.svg': eaIcon,
+  };
 
   const findStoreEntry = (name) => {
     if (!name) return null;
@@ -98,8 +118,8 @@ export default function GameCard({ game }) {
 
   const storeName = chosen?.raw?.drmLabel || chosen?.entry?.label || '';
   const storeIconPath = chosen
-    ? `/src/assets/icons/${chosen.entry.file}`
-    : `/src/assets/icons/store.svg`;
+    ? (ICON_MAP[chosen.entry.file] || globeIcon)
+    : globeIcon;
 
   const NON_INVERT_FILES = ['psn.svg', 'xbox.svg', 'steam.svg'];
   const storeIconInvert = chosen ? !NON_INVERT_FILES.includes(chosen.entry.file) : true;
